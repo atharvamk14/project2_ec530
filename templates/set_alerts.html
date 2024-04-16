@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Set Alerts - Health Monitoring System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Set Alerts for Measurements</h2>
+        <form action="/set_alerts" method="post">
+            <input type="text" name="patient_id" placeholder="Patient ID" required>
+            <input type="text" name="measurement_type" placeholder="Measurement Type" required>
+            <input type="text" name="threshold_value" placeholder="Threshold Value" required>
+            <textarea name="alert_message" placeholder="Alert Message" required></textarea>
+            <button type="submit">Set Alert</button>
+        </form>
+        <a href="/mp_home">Back to Dashboard</a>
+    </div>
+</body>
+</html>

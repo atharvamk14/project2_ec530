@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MP Dashboard - Health Monitoring System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <h2>Medical Professional Dashboard</h2>
+        <p>Welcome, {{ mp_name }}!</p>
+        <div class="actions">
+            <a href="/browse_patients">Browse Patients</a>
+            <a href="/assign_device">Assign Device to Patient</a>
+            <a href="/set_alerts">Set Alerts for Measurements</a>
+            <a href="/manage_appointments">Manage Appointments</a>
+            <a href="/add_user">Add New User</a>
+        </div>
+    </div>
+</body>
+</html>

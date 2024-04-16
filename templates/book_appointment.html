@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Appointment - Health Monitoring System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Book an Appointment</h2>
+        <form action="/book_appointment" method="post">
+            <input type="date" name="date" required>
+            <input type="time" name="time" required>
+            <input type="text" name="doctor_id" placeholder="Doctor ID" required>
+            <button type="submit">Book Appointment</button>
+        </form>
+        <a href="/patient_home">Back to Dashboard</a>
+    </div>
+</body>
+</html>

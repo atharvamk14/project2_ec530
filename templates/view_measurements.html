@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Measurements - Health Monitoring System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Your Measurements</h2>
+        <table>
+            <tr>
+                <th>Type</th>
+                <th>Value</th>
+                <th>Timestamp</th>
+            </tr>
+            {% for measurement in measurements %}
+                <tr>
+                    <td>{{ measurement.Type }}</td>
+                    <td>{{ measurement.Value }}</td>
+                    <td>{{ measurement.Timestamp }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <a href="/patient_home">Back to Dashboard</a>
+    </div>
+</body>
+</html>

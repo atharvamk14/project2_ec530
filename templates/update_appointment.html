@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Appointment - Health Monitoring System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Update Appointment</h2>
+        <form action="" method="post">
+            <input type="date" name="date" value="{{ appointment.Date }}" required>
+            <input type="time" name="time" value="{{ appointment.Time }}" required>
+            <button type="submit">Update Appointment</button>
+        </form>
+        <a href="/manage_appointments">Back to Manage Appointments</a>
+    </div>
+</body>
+</html>

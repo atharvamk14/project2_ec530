@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Browse Patients - Health Monitoring System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Patients List</h2>
+        <ul>
+            {% for patient in patients %}
+                <li>{{ patient.Name }} - <a href="/patient_details/{{ patient.UserId }}">View Details</a></li>
+            {% endfor %}
+        </ul>
+        <a href="/mp_home">Back to Dashboard</a>
+    </div>
+</body>
+</html>

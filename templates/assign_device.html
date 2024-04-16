@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Assign Device to Patient - Health Monitoring System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Assign Device to Patient</h2>
+        <form action="/assign_device" method="post">
+            <input type="text" name="patient_id" placeholder="Patient ID" required>
+            <input type="text" name="device_id" placeholder="Device ID" required>
+            <button type="submit">Assign Device</button>
+        </form>
+        <a href="/mp_home">Back to Dashboard</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Appointments - Health Monitoring System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Manage Appointments</h2>
+        <table>
+            <tr>
+                <th>Appointment ID</th>
+                <th>Patient ID</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Action</th>
+            </tr>
+            {% for appointment in appointments %}
+                <tr>
+                    <td>{{ appointment.AppointmentId }}</td>
+                    <td>{{ appointment.PatientId }}</td>
+                    <td>{{ appointment.Date }}</td>
+                    <td>{{ appointment.Time }}</td>
+                    <td>
+                        <!-- Assuming routes for updating and canceling appointments -->
+                        <a href="/update_appointment/{{ appointment.AppointmentId }}">Update</a>
+                        <a href="/cancel_appointment/{{ appointment.AppointmentId }}">Cancel</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        <a href="/mp_home">Back to Dashboard</a>
+    </div>
+</body>
+</html>

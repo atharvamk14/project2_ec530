@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Enter Measurement - Health Monitoring System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="form-container">
+        <h2>Enter a New Measurement</h2>
+        <form action="/enter_measurement" method="post">
+            <select name="type" required>
+                <option value="">Select Measurement Type</option>
+                <option value="Heart Rate">Heart Rate</option>
+                <option value="Blood Pressure">Blood Pressure</option>
+                <option value="Blood Sugar">Blood Sugar</option>
+                <option value="Temperature">Temperature</option>
+                <option value="Oxygen Saturation">Oxygen Saturation</option>
+            </select>
+            <input type="text" name="value" placeholder="Measurement Value" required>
+            <button type="submit">Enter Measurement</button>
+        </form>
+        <a href="/patient_home">Back to Dashboard</a>
+    </div>
+</body>
+</html>

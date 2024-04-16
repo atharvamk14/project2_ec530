@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Appointments - Health Monitoring System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Your Appointments</h2>
+        {% if appointments %}
+            <ul>
+            {% for appointment in appointments %}
+                <li>{{ appointment.Date }} at {{ appointment.Time }} - Status: {{ appointment.Status }}</li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No appointments found.</p>
+        {% endif %}
+        <a href="/patient_home">Back to Dashboard</a>
+    </div>
+</body>
+</html>

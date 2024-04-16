@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add User - Health Monitoring System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="form-container">
+        <h2>Add New User</h2>
+        <form action="/add_user" method="post">
+            <input type="text" name="name" placeholder="Name" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <select name="role" required>
+                <option value="">Select Role</option>
+                <option value="1">Patient</option>
+                <option value="2">Nurse</option>
+                <option value="3">Doctor</option>
+                <option value="4">Admin</option>
+                <option value="5">Family Member</option>
+            </select>
+            <button type="submit">Add User</button>
+        </form>
+    </div>
+</body>
+</html>
