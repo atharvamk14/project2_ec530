@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cancel Appointment - Health Monitoring System</title>
+</head>
+<body>
+    <div class="container">
+        <h2>Cancel Appointment</h2>
+        <p>Are you sure you want to cancel the following appointment?</p>
+        <p><strong>Date:</strong> {{ appointment.Date }}</p>
+        <p><strong>Time:</strong> {{ appointment.Time }}</p>
+        
+        <form action="/cancel_appointment/{{ appointment.AppointmentId }}" method="post">
+            <button type="submit">Confirm Cancellation</button>
+        </form>
+        <a href="/manage_appointments">Back to Appointments</a>
+    </div>
+</body>
+</html>

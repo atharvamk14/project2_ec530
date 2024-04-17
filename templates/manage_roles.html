@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Roles - Health Monitoring System</title>
+</head>
+<body>
+    <div class="container">
+        <h2>Manage Roles</h2>
+        <form action="/manage_roles" method="post">
+            <select name="user_id" required>
+                <option value="">Select User</option>
+                {% for user in users %}
+                    <option value="{{ user.UserId }}">{{ user.Name }}</option>
+                {% endfor %}
+            </select>
+            <select name="role_id" required multiple>
+                <option value="1">Patient</option>
+                <option value="2">Nurse</option>
+                <option value="3">Doctor</option>
+                <option value="4">Admin</option>
+                <option value="5">Family Member</option>
+            </select>
+            <button type="submit">Assign Role</button>
+        </form>
+        <a href="/admin_home">Back to Dashboard</a>
+    </div>
+</body>
+</html>

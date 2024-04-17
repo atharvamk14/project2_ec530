@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Toggle Device Status - Health Monitoring System</title>
+</head>
+<body>
+    <div class="container">
+        <h2>Toggle Device Status</h2>
+        {% if device %}
+            <p>Are you sure you want to {{ 'disable' if device.IsActive else 'enable' }} the following device?</p>
+            <p><strong>Device Name:</strong> {{ device.DeviceName }}</p>
+            <form action="/confirm_toggle_device_status/{{ device.DeviceId }}" method="post">
+                <button type="submit">Yes, proceed</button>
+            </form>
+            <a href="/manage_devices">Cancel</a>
+        {% else %}
+            <p>Device not found.</p>
+            <a href="/manage_devices">Back to Manage Devices</a>
+        {% endif %}
+    </div>
+</body>
+</html>

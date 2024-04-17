@@ -343,71 +343,92 @@ def manage_appointments():
 
 @app.route('/update_appointment/<int:appointment_id>', methods=['GET', 'POST'])
 def update_appointment(appointment_id):
-    if 'user_id' not in session or 'Doctor' not in session.get('user_roles', []) and 'Nurse' not in session.get('user_roles', []):
+    if 'user_id' not in session:
         flash("Unauthorized access.", "error")
         return redirect(url_for('login'))
     
-    conn = pyodbc.connect(conn_str)
-    cursor = conn.cursor()
-    
-    if request.method == 'POST':
-        new_date = request.form['date']
-        new_time = request.form['time']
-        cursor.execute("UPDATE Appointments SET Date = ?, Time = ? WHERE AppointmentId = ?", (new_date, new_time, appointment_id))
-        conn.commit()
-        flash('Appointment updated successfully!', 'success')
-        return redirect(url_for('manage_appointments'))
-    else:
-        cursor.execute("SELECT AppointmentId, PatientId, Date, Time FROM Appointments WHERE AppointmentId = ?", (appointment_id,))
-        appointment = cursor.fetchone()
+    try:
+        conn = pyodbc.connect(conn_str)
+        cursor = conn.cursor()
 
-    cursor.close()
-    conn.close()
+        if request.method == 'POST':
+            new_date = request.form['date']
+            new_time = request.form['time']
+            cursor.execute("UPDATE Appointments SET Date = ?, Time = ? WHERE AppointmentId = ?", (new_date, new_time, appointment_id))
+            conn.commit()
+            flash('Appointment updated successfully!', 'success')
+            return redirect(url_for('manage_appointments'))
+        else:
+            cursor.execute("SELECT AppointmentId, PatientId, Date, Time FROM Appointments WHERE AppointmentId = ?", (appointment_id,))
+            appointment = cursor.fetchone()
+            return render_template('update_appointment.html', appointment=appointment)
+    finally:
+        cursor.close()
+        conn.close()
 
-    return render_template('update_appointment.html', appointment=appointment)
 
-@app.route('/cancel_appointment/<int:appointment_id>', methods=['POST'])
+@app.route('/cancel_appointment/<int:appointment_id>', methods=['GET', 'POST'])
 def cancel_appointment(appointment_id):
-    if 'user_id' not in session or 'Doctor' not in session.get('user_roles', []) and 'Nurse' not in session.get('user_roles', []):
+    if 'user_id' not in session:
         flash("Unauthorized access.", "error")
         return redirect(url_for('login'))
-    
+
     conn = pyodbc.connect(conn_str)
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM Appointments WHERE AppointmentId = ?", (appointment_id,))
-    conn.commit()
-    cursor.close()
-    conn.close()
-    
-    flash('Appointment canceled successfully!', 'success')
-    return redirect(url_for('manage_appointments'))
+
+    try:
+        if request.method == 'POST':
+            # Process the cancellation
+            cursor.execute("DELETE FROM Appointments WHERE AppointmentId = ?", (appointment_id,))
+            conn.commit()
+            flash('Appointment canceled successfully!', 'success')
+            return redirect(url_for('manage_appointments'))
+        else:
+            # Display the confirmation page
+            cursor.execute("SELECT AppointmentId, PatientId, Date, Time FROM Appointments WHERE AppointmentId = ?", (appointment_id,))
+            appointment = cursor.fetchone()
+            if appointment:
+                return render_template('cancel_appointment.html', appointment=appointment)
+            else:
+                flash("Appointment not found.", "error")
+                return redirect(url_for('manage_appointments'))
+    except Exception as e:
+        flash(f'An error occurred: {str(e)}', 'error')
+        return redirect(url_for('manage_appointments'))
+    finally:
+        cursor.close()
+        conn.close()
+
+
 
 @app.route('/toggle_user_status/<int:user_id>', methods=['POST'])
 def toggle_user_status(user_id):
-    if 'user_id' not in session or 'Admin' not in session.get('user_roles', []):
+    if 'user_id' not in session or session.get('user_role') != 'Admin':
         flash("Unauthorized access.", "error")
         return redirect(url_for('login'))
     
     conn = pyodbc.connect(conn_str)
     cursor = conn.cursor()
     
-    # First, fetch the current status of the user
-    cursor.execute("SELECT IsActive FROM Users WHERE UserId = ?", (user_id,))
-    current_status = cursor.fetchone()
-    if current_status is None:
-        flash("User not found.", "error")
-        return redirect(url_for('manage_users'))
+    try:
+        # Fetch the current status of the user
+        cursor.execute("SELECT IsActive FROM Users WHERE UserId = ?", (user_id,))
+        current_status = cursor.fetchone()
+        if current_status:
+            new_status = not current_status.IsActive
+            cursor.execute("UPDATE Users SET IsActive = ? WHERE UserId = ?", (new_status, user_id))
+            conn.commit()
+            flash('User status updated successfully!', 'success')
+        else:
+            flash("User not found.", "error")
+    except Exception as e:
+        flash(f'Failed to toggle user status: {str(e)}', 'error')
+    finally:
+        cursor.close()
+        conn.close()
     
-    # Toggle the status
-    new_status = not current_status.IsActive
-    cursor.execute("UPDATE Users SET IsActive = ? WHERE UserId = ?", (new_status, user_id))
-    conn.commit()
+    return redirect(url_for('admin_manage_users'))
 
-    cursor.close()
-    conn.close()
-    
-    flash('User status updated successfully!', 'success')
-    return redirect(url_for('manage_users'))
 
 # Add this new route for serving the measurement entry form
 @app.route('/enter_measurement', methods=['GET', 'POST'])
@@ -458,6 +479,125 @@ def view_appointments():
         conn.close()
 
     return render_template('view_appointments.html', appointments=appointments)
+
+@app.route('/admin_manage_users')
+def admin_manage_users():
+    if 'user_id' not in session or 'Admin' not in session.get('user_role', []):
+        flash("Unauthorized access.", "error")
+        return redirect(url_for('login'))
+
+    conn = pyodbc.connect(conn_str)
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT UserId, Name, Email, IsActive FROM Users ORDER BY Name")
+        users = cursor.fetchall()
+    except Exception as e:
+        flash(f'An error occurred while fetching users: {str(e)}', 'error')
+        users = []
+    finally:
+        cursor.close()
+        conn.close()
+
+    return render_template('manage_users.html', users=users)
+
+
+
+@app.route('/manage_roles', methods=['GET', 'POST'])
+def manage_roles():
+    if 'user_id' not in session or session.get('user_role') != 'Admin':
+        flash("Unauthorized access.", "error")
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        user_id = request.form['user_id']
+        role_ids = request.form.getlist('role_id')
+        # Insert or update role assignments in the database
+        # Ensure to handle multiple roles assignment logic here
+
+    try:
+        conn = pyodbc.connect(conn_str)
+        cursor = conn.cursor()
+        cursor.execute("SELECT UserId, Name FROM Users ORDER BY Name")
+        users = cursor.fetchall()
+    except Exception as e:
+        flash(f'Failed to fetch users: {str(e)}', 'error')
+        users = []
+    finally:
+        cursor.close()
+        conn.close()
+    
+    return render_template('manage_roles.html', users=users)
+
+
+@app.route('/manage_devices', methods=['GET', 'POST'])
+def manage_devices():
+    if 'user_id' not in session or session.get('user_role') != 'Admin':
+        flash("Unauthorized access.", "error")
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        device_name = request.form['device_name']
+        # Insert device into the database
+        try:
+            conn = pyodbc.connect(conn_str)
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO Devices (DeviceName, IsActive) VALUES (?, ?)", (device_name, True))
+            conn.commit()
+            flash('Device added successfully', 'success')
+        except Exception as e:
+            flash(f'Failed to add device: {e}', 'error')
+        finally:
+            cursor.close()
+            conn.close()
+
+    # Fetch all devices for listing
+    try:
+        conn = pyodbc.connect(conn_str)
+        cursor = conn.cursor()
+        cursor.execute("SELECT DeviceId, DeviceName, IsActive FROM Devices")
+        devices = cursor.fetchall()
+    except Exception as e:
+        flash(f'Failed to fetch devices: {e}', 'error')
+        devices = []
+    finally:
+        cursor.close()
+        conn.close()
+    return render_template('manage_devices.html', devices=devices)
+
+
+@app.route('/toggle_device_status/<int:device_id>', methods=['POST'])
+def toggle_device_status(device_id):
+    if 'user_id' not in session or session.get('user_role') != 'Admin':
+        flash("Unauthorized access.", "error")
+        return redirect(url_for('login'))
+    
+    try:
+        conn = pyodbc.connect(conn_str)
+        cursor = conn.cursor()
+        # Fetch the current status of the device
+        cursor.execute("SELECT IsActive FROM Devices WHERE DeviceId = ?", (device_id,))
+        current_status = cursor.fetchone()
+        if current_status:
+            new_status = not current_status[0]  # Correct assumption that IsActive is the first column
+            # Update the device status in the database
+            cursor.execute("UPDATE Devices SET IsActive = ? WHERE DeviceId = ?", (new_status, device_id))
+            conn.commit()
+            # Provide feedback to the user
+            flash('Device status updated successfully.', 'success')
+        else:
+            flash("Device not found.", "error")
+    except Exception as e:
+        flash(f'Failed to toggle device status: {str(e)}', 'error')
+    finally:
+        # Close the database connection
+        cursor.close()
+        conn.close()
+    
+    # Redirect back to the device management page
+    return redirect(url_for('manage_devices'))
+
+
+
 
 
 
