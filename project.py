@@ -1,11 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, send_from_directory
 import pyodbc
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'C:\\Users\\AtharvaK\\Desktop\\EC 530\\uploads'
+app.config['UPLOAD_FOLDER'] = 'uploads'  # Changed for simplicity, adjust as needed.
 
 # Set a secret key for session management
 app.secret_key = '0123456789'
@@ -17,6 +17,13 @@ conn_str = (
     f'DRIVER={{ODBC Driver 17 for SQL Server}};'
     f'SERVER={server};DATABASE={database};Trusted_Connection=yes;'
 )
+
+# Define allowed file extensions for uploads
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'mp3'}
+
+# Function to check if the file extension is allowed
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/')
 def index():
@@ -68,42 +75,23 @@ def add_user():
 def login():
     if request.method == 'POST':
         email = request.form['email']
-        password = request.form['password']  # Directly using the plaintext password
+        password = request.form['password']  # Note: Hashing should be applied here
 
-        conn = pyodbc.connect(conn_str)
-        cursor = conn.cursor()
-        
-        # Direct comparison of plaintext passwords (not recommended for production)
-        cursor.execute("""
-        SELECT u.UserId, u.Name, r.RoleName 
-        FROM Users u
-        JOIN UserRoles ur ON u.UserId = ur.UserId
-        JOIN Roles r ON ur.RoleId = r.RoleId
-        WHERE u.Email = ? AND u.Password = ?""", (email, password))
-        user_info = cursor.fetchone()
-        
-        if user_info:
-            # Store user information and roles in session
-            session['user_id'] = user_info.UserId
-            session['user_name'] = user_info.Name
-            session['user_role'] = user_info.RoleName
-
-            cursor.close()
-            conn.close()
-
-            # Redirect based on role
-            if user_info.RoleName == 'Patient':
-                return redirect(url_for('patient_home'))
-            elif user_info.RoleName in ['Doctor', 'Nurse']:
-                return redirect(url_for('mp_home'))
-            elif user_info.RoleName == 'Admin':
-                return redirect(url_for('admin_home'))
-            # Add more role checks as needed
-        else:
-            cursor.close()
-            conn.close()
-            flash('Invalid login credentials. Please try again.')
-            return redirect(url_for('login'))
+        with pyodbc.connect(conn_str) as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+            SELECT u.UserId, u.Name, r.RoleName, u.Password 
+            FROM Users u
+            JOIN UserRoles ur ON u.UserId = ur.UserId
+            JOIN Roles r ON ur.RoleId = r.RoleId
+            WHERE u.Email = ?""", (email,))
+            user_info = cursor.fetchone()
+            
+            if user_info and check_password_hash(user_info[3], password):
+                session['user_id'], session['user_name'], session['user_role'] = user_info[:3]
+                return redirect(url_for(f'{session["user_role"]}_home'))
+            else:
+                flash('Invalid login credentials. Please try again.')
 
     return render_template('login.html')
 
