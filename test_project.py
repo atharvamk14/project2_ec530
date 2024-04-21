@@ -2,7 +2,7 @@ import os
 import pytest
 from flask_testing import TestCase
 from unittest.mock import patch
-from project import app  # Import your Flask app here
+from project import app  # Make sure 'project' matches the actual name of your Flask app file
 
 class TestRoutes(TestCase):
     def create_app(self):
@@ -19,12 +19,13 @@ class TestRoutes(TestCase):
 
     # Add more tests for other routes
 
+
 class TestFormSubmission(TestCase):
     def create_app(self):
         app.config['TESTING'] = True
         return app
 
-    @patch('your_flask_app.pyodbc.connect')
+    @patch('project.pyodbc.connect')  # Adjust 'project' to match the actual module name of your Flask app
     def test_add_user(self, mock_connect):
         mock_cursor = mock_connect.return_value.cursor.return_value
         mock_cursor.fetchone.return_value = None  # Assume user does not exist
@@ -39,17 +40,18 @@ class TestFormSubmission(TestCase):
 
     # Add more tests for other forms
 
+class TestUserLogin(TestCase):
+    def create_app(self):
+        app.config['TESTING'] = True
+        return app
 
-@patch('your_flask_app.pyodbc.connect')
-def test_user_login(mock_connect):
-    mock_cursor = mock_connect.return_value.cursor.return_value
-    mock_cursor.fetchone.return_value = [1, 'Test User', 'Patient']  # Mocked DB response
-    with app.test_client() as client:
-        response = client.post('/login', data={
+    @patch('project.pyodbc.connect')  # Adjust 'project' to match the actual module name of your Flask app
+    def test_user_login(self, mock_connect):
+        mock_cursor = mock_connect.return_value.cursor.return_value
+        mock_cursor.fetchone.return_value = [1, 'Test User', 'Patient']  # Mocked DB response
+        response = self.client.post('/login', data={
             'email': 'test@user.com',
             'password': 'password123'
         })
         # Verify redirect based on user role
         self.assertRedirects(response, '/patient_home')
-
-
