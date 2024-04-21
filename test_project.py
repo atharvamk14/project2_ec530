@@ -7,6 +7,7 @@ from project import app  # Make sure 'project' matches the actual name of your F
 class TestRoutes(TestCase):
     def create_app(self):
         app.config['TESTING'] = True
+        print("Created app")
         return app
 
     def test_index_redirect(self):
