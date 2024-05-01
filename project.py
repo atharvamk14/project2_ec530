@@ -1,11 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, send_from_directory
 import pyodbc
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
 import os
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'uploads'  # Changed for simplicity, adjust as needed.
+app.config['UPLOAD_FOLDER'] = 'C:\\Users\\AtharvaK\\Desktop\\EC 530\\uploads'
 
 # Set a secret key for session management
 app.secret_key = '0123456789'
@@ -17,13 +17,6 @@ conn_str = (
     f'DRIVER={{ODBC Driver 17 for SQL Server}};'
     f'SERVER={server};DATABASE={database};Trusted_Connection=yes;'
 )
-
-# Define allowed file extensions for uploads
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'mp3'}
-
-# Function to check if the file extension is allowed
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/')
 def index():
@@ -75,23 +68,42 @@ def add_user():
 def login():
     if request.method == 'POST':
         email = request.form['email']
-        password = request.form['password']  # Note: Hashing should be applied here
+        password = request.form['password']  # Directly using the plaintext password
 
-        with pyodbc.connect(conn_str) as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-            SELECT u.UserId, u.Name, r.RoleName, u.Password 
-            FROM Users u
-            JOIN UserRoles ur ON u.UserId = ur.UserId
-            JOIN Roles r ON ur.RoleId = r.RoleId
-            WHERE u.Email = ?""", (email,))
-            user_info = cursor.fetchone()
-            
-            if user_info and check_password_hash(user_info[3], password):
-                session['user_id'], session['user_name'], session['user_role'] = user_info[:3]
-                return redirect(url_for(f'{session["user_role"]}_home'))
-            else:
-                flash('Invalid login credentials. Please try again.')
+        conn = pyodbc.connect(conn_str)
+        cursor = conn.cursor()
+        
+        # Direct comparison of plaintext passwords (not recommended for production)
+        cursor.execute("""
+        SELECT u.UserId, u.Name, r.RoleName 
+        FROM Users u
+        JOIN UserRoles ur ON u.UserId = ur.UserId
+        JOIN Roles r ON ur.RoleId = r.RoleId
+        WHERE u.Email = ? AND u.Password = ?""", (email, password))
+        user_info = cursor.fetchone()
+        
+        if user_info:
+            # Store user information and roles in session
+            session['user_id'] = user_info.UserId
+            session['user_name'] = user_info.Name
+            session['user_role'] = user_info.RoleName
+
+            cursor.close()
+            conn.close()
+
+            # Redirect based on role
+            if user_info.RoleName == 'Patient':
+                return redirect(url_for('patient_home'))
+            elif user_info.RoleName in ['Doctor', 'Nurse']:
+                return redirect(url_for('mp_home'))
+            elif user_info.RoleName == 'Admin':
+                return redirect(url_for('admin_home'))
+            # Add more role checks as needed
+        else:
+            cursor.close()
+            conn.close()
+            flash('Invalid login credentials. Please try again.')
+            return redirect(url_for('login'))
 
     return render_template('login.html')
 
@@ -519,26 +531,28 @@ def manage_roles():
 
 @app.route('/manage_devices', methods=['GET', 'POST'])
 def manage_devices():
+    # Check if user is logged in and is an admin
     if 'user_id' not in session or session.get('user_role') != 'Admin':
         flash("Unauthorized access.", "error")
         return redirect(url_for('login'))
-    
-    if request.method == 'POST':
-        device_name = request.form['device_name']
-        # Insert device into the database
-        try:
-            conn = pyodbc.connect(conn_str)
-            cursor = conn.cursor()
-            cursor.execute("INSERT INTO Devices (DeviceName, IsActive) VALUES (?, ?)", (device_name, True))
-            conn.commit()
-            flash('Device added successfully', 'success')
-        except Exception as e:
-            flash(f'Failed to add device: {e}', 'error')
-        finally:
-            cursor.close()
-            conn.close()
 
-    # Fetch all devices for listing
+    if request.method == 'POST':
+        device_name = request.form.get('device_name')  # Retrieve device name from the form
+        if device_name:  # Check if device name was actually provided
+            try:
+                conn = pyodbc.connect(conn_str)
+                cursor = conn.cursor()
+                # Insert the new device, assuming all new devices are enabled by default
+                cursor.execute("INSERT INTO Devices (DeviceName, IsActive) VALUES (?, ?)", (device_name, True))
+                conn.commit()
+                flash('Device added successfully', 'success')
+            except Exception as e:
+                flash(f'Failed to add device: {e}', 'error')
+            finally:
+                cursor.close()
+                conn.close()
+
+    # Load and display devices, handling both GET and successful POST requests
     try:
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
@@ -546,11 +560,14 @@ def manage_devices():
         devices = cursor.fetchall()
     except Exception as e:
         flash(f'Failed to fetch devices: {e}', 'error')
-        devices = []
+        devices = []  # Ensure the template can handle an empty list if the database call fails
     finally:
         cursor.close()
         conn.close()
-    return render_template('manage_devices.html', devices=devices)
+
+    return redirect(url_for('manage_devices'))
+
+
 
 
 @app.route('/toggle_device_status/<int:device_id>', methods=['POST'])
@@ -562,28 +579,22 @@ def toggle_device_status(device_id):
     try:
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
-        # Fetch the current status of the device
         cursor.execute("SELECT IsActive FROM Devices WHERE DeviceId = ?", (device_id,))
         current_status = cursor.fetchone()
         if current_status:
             new_status = not current_status[0]  # Correct assumption that IsActive is the first column
-            # Update the device status in the database
             cursor.execute("UPDATE Devices SET IsActive = ? WHERE DeviceId = ?", (new_status, device_id))
             conn.commit()
-            # Provide feedback to the user
             flash('Device status updated successfully.', 'success')
         else:
             flash("Device not found.", "error")
     except Exception as e:
         flash(f'Failed to toggle device status: {str(e)}', 'error')
     finally:
-        # Close the database connection
         cursor.close()
         conn.close()
     
-    # Redirect back to the device management page
     return redirect(url_for('manage_devices'))
-
 
 
 

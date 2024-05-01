@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Patient Dashboard - Health Monitoring System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <div class="dashboard-container">
         <h2>Patient Dashboard</h2>
         <p>Welcome, {{ patient_name }}!</p>
         <div class="actions">
-            <a href="/view_measurements">View Measurements</a>
-            <a href="/write_message">View and Write Messages</a>
-            <a href="/upload_media">View and Upload Video/Voice Message</a>
-            <a href="/book_appointment">Book an Appointment</a>
-            <a href="/enter_measurement">Enter a Measurement</a>
-            <a href="/view_appointments">View Appointments</a>
-
+            <a href="/view_measurements" class="dashboard-link">View Measurements</a>
+            <a href="/write_message" class="dashboard-link">View and Write Messages</a>
+            <a href="/upload_media" class="dashboard-link">View and Upload Video/Voice Message</a>
+            <a href="/book_appointment" class="dashboard-link">Book an Appointment</a>
+            <a href="/enter_measurement" class="dashboard-link">Enter a Measurement</a>
+            <a href="/view_appointments" class="dashboard-link">View Appointments</a>
         </div>
     </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

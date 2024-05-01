@@ -10,12 +10,13 @@
         <h2>Medical Professional Dashboard</h2>
         <p>Welcome, {{ mp_name }}!</p>
         <div class="actions">
-            <a href="/browse_patients">Browse Patients</a>
-            <a href="/assign_device">Assign Device to Patient</a>
-            <a href="/set_alerts">Set Alerts for Measurements</a>
-            <a href="/manage_appointments">Manage Appointments</a>
-            <a href="/add_user">Add New User</a>
+            <a href="/browse_patients" class="dashboard-link">Browse Patients</a>
+            <a href="/assign_device" class="dashboard-link">Assign Device to Patient</a>
+            <a href="/set_alerts" class="dashboard-link">Set Alerts for Measurements</a>
+            <a href="/manage_appointments" class="dashboard-link">Manage Appointments</a>
+            <a href="/add_user" class="dashboard-link">Add New User</a>
         </div>
     </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

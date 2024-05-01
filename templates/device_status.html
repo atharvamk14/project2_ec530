@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Device Status - Health Monitoring System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
 </head>
 <body>
     <div class="container">
@@ -10,5 +12,7 @@
         <!-- Interface to enable/disable devices goes here -->
         <a href="/admin_home">Back to Dashboard</a>
     </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
 </body>
 </html>

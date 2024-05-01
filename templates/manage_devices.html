@@ -3,33 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>Manage Devices - Health Monitoring System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <div class="container">
         <h2>Manage Devices</h2>
-        <form action="/manage_devices" method="post">
-            <input type="text" name="device_name" placeholder="Device Name" required>
-            <button type="submit">Add Device</button>
-        </form>
         <table>
             <tr>
                 <th>Device Name</th>
                 <th>Status</th>
-                <th>Action</th>
             </tr>
             {% for device in devices %}
             <tr>
-                <td>{{ device.DeviceName }}</td>
-                <td>{{ 'Enabled' if device.IsActive else 'Disabled' }}</td>
-                <td>
-                    <form action="/toggle_device_status/{{ device.DeviceId }}" method="post">
-                        <button type="submit">{{ 'Disable' if device.IsActive else 'Enable' }}</button>
-                    </form>
-                </td>
+                <td>{{ device.device_name }}</td>
+                <td>{{ 'Enabled' if device.is_active else 'Disabled' }}</td>
             </tr>
             {% endfor %}
         </table>
-        <a href="/admin_home">Back to Dashboard</a>
+        <a href="{{ url_for('admin_home') }}">Back to Dashboard</a>
+        <a href="{{ url_for('add_device') }}">Add New Device</a>
     </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

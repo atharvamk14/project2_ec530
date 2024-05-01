@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard - Health Monitoring System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <div class="dashboard-container">
         <h2>Admin Dashboard</h2>
+        <p>Welcome, {{ admin_name }}!</p>
         <div class="actions">
-            <a href="/admin_manage_users">Manage Users</a>
-            <a href="/manage_roles">Assign/Change Roles</a>
-            <a href="/manage_devices">Manage Devices</a>
-            <a href="/manage_devices">Enable/Disable Devices</a>
-
+            <a href="/admin_manage_users" class="dashboard-link">Manage Users</a>
+            <a href="/manage_roles" class="dashboard-link">Assign/Change Roles</a>
         </div>
     </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
