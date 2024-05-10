@@ -12,7 +12,7 @@ jobs:
 
     services:
       sqlserver:
-        image: mcr.microsoft.com/mssql/server:2019-latest
+        image: mcr.microsoft.com/mssql/server:2019-CU8-ubuntu-16.04
         env:
           ACCEPT_EULA: Y
           SA_PASSWORD: YourStrong!Passw0rd
@@ -20,9 +20,9 @@ jobs:
           - 1433:1433
         options: >-
           --health-cmd="sqlcmd -S localhost,1433 -U SA -P 'YourStrong!Passw0rd' -Q 'SELECT 1'"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+          --health-interval=30s
+          --health-timeout=10s
+          --health-retries=10
 
     steps:
     - uses: actions/checkout@v3
@@ -43,3 +43,7 @@ jobs:
       run: |
         pip install flake8
         flake8 .
+    - name: Docker Logs
+      if: failure()
+      run: |
+        docker logs sqlserver
