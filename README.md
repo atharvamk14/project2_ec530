@@ -25,11 +25,11 @@ This repository contains a Flask web application for a Health Management System 
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/your-repository-name.git
+   https://github.com/atharvamk14/project2_ec530.git
    ```
 2. Navigate to the project directory:
    ```bash
-   cd your-repository-name
+   cd project_ec530.git
    ```
 3. Install required Python packages:
    ```bash
@@ -66,17 +66,11 @@ http://localhost:5000
 - `/manage_users` - Admin feature to manage all system users.
 - Additional endpoints for device management, setting alerts, and more are detailed within the application's routing.
 
-## Contributing
 
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Contact
 
-Your Name - [your-email@example.com](mailto:your-email@example.com)
+Your Name - Atharva Khandekar [amk14@bu.edu]
 
-Project Link: [https://github.com/yourusername/your-repository-name](https://github.com/yourusername/your-repository-name)
+Project Link: https://github.com/atharvamk14/project2_ec530
 
