@@ -26,10 +26,8 @@ jobs:
         DB_NAME: ${{ secrets.DB_NAME }}
       run: |
         export DATABASE_URL="DRIVER={ODBC Driver 17 for SQL Server};SERVER=${DB_SERVER};DATABASE=${DB_NAME};Trusted_Connection=yes;"
-        pytest tests/
+        PYTHONPATH=./ python -m pytest tests/
     - name: Lint with Flake8
       run: |
         pip install flake8
         flake8 .
-    - name: Add project directory to PYTHONPATH
-      run:  echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
