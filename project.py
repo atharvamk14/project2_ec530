@@ -17,6 +17,13 @@ conn_str = (
     f'DRIVER={{ODBC Driver 17 for SQL Server}};'
     f'SERVER={server};DATABASE={database};Trusted_Connection=yes;'
 )
+def get_db_connection():
+    server = 'localhost,1433'
+    database = 'master'
+    username = 'SA'
+    password = 'YourStrong!Passw0rd'  # Consider using GitHub Secrets for this
+    cnxn = pyodbc.connect(f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}')
+    return cnxn
 
 @app.route('/')
 def index():

@@ -1,12 +1,17 @@
 import pytest
 import sys
-sys.path.append('..') 
+sys.path.append('..')  # Adds the upper directory to the path to find the project module
 from project import app as flask_app
 
 @pytest.fixture
 def app():
     app = flask_app
-    app.config.update({"TESTING": True, "SECRET_KEY": "01234566"})
+    app.config.update({
+        "TESTING": True,
+        "SECRET_KEY": "01234566",
+        # Assuming you might need a configuration for the database URL if not set globally
+        "DATABASE_URL": "Server=localhost,1433;Database=master;User ID=SA;Password=YourStrong!Passw0rd;"
+    })
     yield app
 
 @pytest.fixture
@@ -58,4 +63,3 @@ def test_admin_assign_roles(client):
     login(client, 'admin@gmail.com', 'admin')
     response = client.get('/manage_roles', follow_redirects=True)
     assert 'Manage Roles' in response.get_data(as_text=True)
-    
