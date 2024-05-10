@@ -10,20 +10,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    services:
-      sqlserver:
-        image: mcr.microsoft.com/mssql/server:2019-latest
-        env:
-          ACCEPT_EULA: Y
-          SA_PASSWORD: YourStrong!Passw0rd
-        ports:
-          - 1433:1433
-        options: >-
-          --health-cmd="sqlcmd -S localhost,1433 -U SA -P 'YourStrong!Passw0rd' -Q 'SELECT 1'"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 3.8
@@ -36,9 +22,11 @@ jobs:
         pip install -r requirements.txt
     - name: Run Tests
       env:
-        DATABASE_URL: "Server=localhost,1433;Database=master;User ID=SA;Password=YourStrong!Passw0rd;"
+        DB_SERVER: ${{ secrets.DB_SERVER }}
+        DB_NAME: ${{ secrets.DB_NAME }}
       run: |
-        pytest tests/
+        export DATABASE_URL="DRIVER={ODBC Driver 17 for SQL Server};SERVER=${DB_SERVER};DATABASE=${DB_NAME};Trusted_Connection=yes;"
+        PYTHONPATH=./ python -m pytest tests/
     - name: Lint with Flake8
       run: |
         pip install flake8
