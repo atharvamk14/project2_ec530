@@ -12,7 +12,7 @@ def app():
 @pytest.fixture
 def client(app):
     return app.test_client()
-
+    
 def login(client, email, password):
     return client.post('/login', data=dict(email=email, password=password), follow_redirects=True)
 
