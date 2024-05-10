@@ -1,4 +1,6 @@
 import pytest
+import sys
+sys.path.append('..') 
 from project import app as flask_app
 
 @pytest.fixture
