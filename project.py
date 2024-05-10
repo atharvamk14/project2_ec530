@@ -531,7 +531,6 @@ def manage_roles():
 
 @app.route('/manage_devices', methods=['GET', 'POST'])
 def manage_devices():
-    # Check if user is logged in and is an admin
     if 'user_id' not in session or session.get('user_role') != 'Admin':
         flash("Unauthorized access.", "error")
         return redirect(url_for('login'))
