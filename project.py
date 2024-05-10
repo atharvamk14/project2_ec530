@@ -11,19 +11,11 @@ app.config['UPLOAD_FOLDER'] = 'C:\\Users\\AtharvaK\\Desktop\\EC 530\\uploads'
 app.secret_key = '0123456789'
 
 # Database connection details
-server = 'ATHARVA'
-database = 'HMS'
-conn_str = (
-    f'DRIVER={{ODBC Driver 17 for SQL Server}};'
-    f'SERVER={server};DATABASE={database};Trusted_Connection=yes;'
-)
-def get_db_connection():
-    server = 'localhost,1433'
-    database = 'master'
-    username = 'SA'
-    password = 'YourStrong!Passw0rd'  # Consider using GitHub Secrets for this
-    cnxn = pyodbc.connect(f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}')
-    return cnxn
+server = os.getenv('DB_SERVER', 'ATHARVA')
+database = os.getenv('DB_NAME', 'HMS')
+
+conn_str = f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};Trusted_Connection=yes;"
+
 
 @app.route('/')
 def index():

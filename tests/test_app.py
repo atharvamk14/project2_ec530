@@ -1,17 +1,12 @@
 import pytest
 import sys
-sys.path.append('..')  # Adds the upper directory to the path to find the project module
+sys.path.append('..') 
 from project import app as flask_app
 
 @pytest.fixture
 def app():
     app = flask_app
-    app.config.update({
-        "TESTING": True,
-        "SECRET_KEY": "01234566",
-        # Assuming you might need a configuration for the database URL if not set globally
-        "DATABASE_URL": "Server=localhost,1433;Database=master;User ID=SA;Password=YourStrong!Passw0rd;"
-    })
+    app.config.update({"TESTING": True, "SECRET_KEY": "01234566"})
     yield app
 
 @pytest.fixture
