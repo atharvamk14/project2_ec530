@@ -11,8 +11,23 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: YourStrong!Passw0rd
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd="sqlcmd -S localhost,1433 -U SA -P 'YourStrong!Passw0rd' -Q 'SELECT 1'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
     - uses: actions/checkout@v3
+
     - name: Set up Python 3.8
       uses: actions/setup-python@v4
       with:
@@ -25,7 +40,7 @@ jobs:
 
     - name: Run Tests
       env:
-        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        DATABASE_URL: "Server=localhost,1433;Initial Catalog=master;User ID=SA;Password=YourStrong!Passw0rd"
       run: |
         PYTHONPATH=./ python -m pytest tests/
 
